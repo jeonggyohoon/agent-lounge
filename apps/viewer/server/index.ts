@@ -8,16 +8,17 @@
  * 끊는다. 파일을 바꾸는 코드도 없다 — `ReadonlyLounge` 만 만든다.
  *
  * **루프백에만 붙는다.** 다른 기계에서 이 서버로 로컬 파일을 읽어 갈 수 없다.
+ *
+ * **이 파일은 최상위에서 아무것도 하지 않는다.** 여기에 자체 실행 블록을 두면
+ * cli 번들에 섞여 들어가 진입점 판별이 같이 참이 되고, 포트를 두 번 잡는다.
+ * 실제로 그렇게 깨졌다. 띄우는 일은 serve.ts 와 cli.ts 가 한다.
  */
 import { createReadStream, existsSync, statSync } from 'node:fs';
 import { createServer, type IncomingMessage, type ServerResponse } from 'node:http';
-import { extname, join, normalize, resolve } from 'node:path';
-import { basenamePath } from '@lounge/core';
+import { extname, join, normalize } from 'node:path';
 import { findRoute } from './routes.js';
-import { closeAllChanges } from './watch.js';
 
-const HOST = '127.0.0.1';
-const DEFAULT_PORT = 5174;
+export const HOST = '127.0.0.1';
 
 const MIME: Record<string, string> = {
   '.html': 'text/html; charset=utf-8',
@@ -108,35 +109,3 @@ function serveStatic(pathname: string, staticDir: string, response: ServerRespon
   createReadStream(file).pipe(response);
 }
 
-/** `--project <경로>` 또는 첫 번째 인자. 없으면 현재 폴더. */
-function projectFromArgv(argv: string[]): string {
-  const flag = argv.indexOf('--project');
-  if (flag !== -1 && argv[flag + 1]) return resolve(argv[flag + 1]!);
-  const first = argv.find((a) => !a.startsWith('-'));
-  return resolve(first ?? process.cwd());
-}
-
-// 직접 실행됐을 때만 듣는다. 테스트는 createViewerServer 를 직접 쓴다.
-if (process.argv[1] && import.meta.url.endsWith(basenamePath(process.argv[1]))) {
-  const defaultProject = projectFromArgv(process.argv.slice(2));
-  const dist = resolve(import.meta.dirname, '../dist');
-  const port = Number(process.env.LOUNGE_VIEWER_PORT ?? DEFAULT_PORT);
-
-  const server = createViewerServer({
-    defaultProject,
-    port,
-    ...(existsSync(dist) ? { staticDir: dist } : {}),
-  });
-
-  server.listen(port, HOST, () => {
-    console.log(`라운지 뷰어 백엔드 http://${HOST}:${port}`);
-    console.log(`기본 프로젝트 ${defaultProject}`);
-  });
-
-  const shutdown = () => {
-    server.close();
-    void closeAllChanges().then(() => process.exit(0));
-  };
-  process.on('SIGINT', shutdown);
-  process.on('SIGTERM', shutdown);
-}

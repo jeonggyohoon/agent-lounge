@@ -19,7 +19,7 @@ function backend(): Plugin {
       const project = process.env.LOUNGE_PROJECT ?? resolve(import.meta.dirname, '../..');
       child = spawn(
         'pnpm',
-        ['exec', 'tsx', 'server/index.ts', '--project', project],
+        ['exec', 'tsx', 'server/serve.ts', '--project', project],
         {
           cwd: import.meta.dirname,
           stdio: 'inherit',
@@ -63,5 +63,6 @@ export default defineConfig({
     // 프런트엔드가 실수로 node 어댑터를 물면 조용히 되지 말고 빌드가 깨져야 한다.
     alias: [{ find: /^@lounge\/core$/, replacement: resolve(import.meta.dirname, '../../packages/core/src/index.ts') }],
   },
-  build: { target: 'es2022', outDir: 'dist' },
+  // dist/ 루트는 CLI 번들 자리다. 화면은 dist/web 아래로 내린다.
+  build: { target: 'es2022', outDir: 'dist/web' },
 });

@@ -87,12 +87,23 @@ lounge-mcp --actor claude-code@auth [--client <이름>] [--cwd <경로>]
 
 ## 뷰어
 
+프로젝트 폴더에서 띄우는 법은 「다른 프로젝트에 라운지 붙이기」의 5단계에 있다.
+아래는 **뷰어 자체를 고칠 때** 쓰는 개발 모드다.
+
 ```
 pnpm --filter @lounge/viewer dev           # http://localhost:5173
 ```
 
 백엔드는 `pnpm dev` 가 함께 띄운다. 다른 폴더를 보려면 `LOUNGE_PROJECT` 를
 주거나 화면에서 경로를 넣는다. 백엔드만 따로 띄우려면 `pnpm serve` 다.
+
+빌드 산출물은 두 갈래다.
+
+```
+apps/viewer/dist/
+  cli.js       프로젝트 폴더에서 실행하는 진입점
+  web/         화면 번들
+```
 
 읽기 전용이고 세 겹으로 막는다.
 
@@ -163,11 +174,49 @@ claude mcp add lounge -- node ~/tools/lounge/packages/mcp/dist/index.js   --acto
 Claude Code 는 세션 훅으로도 알리지만 **Codex 에는 세션 시작 훅이 없어서
 `AGENTS.md` 가 유일한 알림**이다. 빼먹으면 Codex 는 라운지를 쓰지 않는다.
 
-### 5. 확인한다
+### 5. 뷰어를 띄운다
+
+**프로젝트 폴더에서 그대로 실행한다.** 현재 위치에서 위로 올라가며 라운지를
+찾고, 빈 포트를 골라 백엔드를 띄우고 브라우저를 연다.
+
+```
+cd ~/work/myapp
+node ~/tools/lounge/apps/viewer/dist/cli.js
+```
+
+```
+라운지   ~/work/myapp/.lounge
+프로젝트 myapp
+열림     http://127.0.0.1:5174
+```
+
+하위 폴더에서 실행해도 같은 라운지에 붙는다. **프로젝트를 여러 개 동시에
+띄울 수 있다** — 포트가 겹치면 다음 빈 포트로 넘어간다.
+
+| 플래그 | |
+|---|---|
+| `--no-open` | 브라우저를 열지 않는다 |
+| `--port <n>` | 포트를 고정한다 |
+| `--cwd <경로>` | 다른 폴더의 라운지를 연다 |
+
+**라운지가 없으면 만들지 않고 종료한다.** MCP 서버와 같은 규칙이고 같은 종료
+코드(`3`)를 쓴다. `--init` 명령을 그대로 출력하니 그것만 복사해 실행하면 된다.
+
+전역 링크를 걸면 `lounge-viewer` 로 부를 수 있다.
+
+```
+cd ~/tools/lounge/apps/viewer && pnpm link --global
+cd ~/work/myapp && lounge-viewer
+```
+
+`npx lounge-viewer` 는 이 패키지가 `lounge-viewer` 라는 이름으로 npm 에
+배포된 뒤에나 동작한다. 지금은 `@lounge/viewer` 이고 `private` 이다.
+
+### 6. 확인한다
 
 각 클라이언트에서 `lounge_join` 을 부른다. 같은 라운지 경로가 나오면 붙은
 것이다. 한쪽에서 `lounge_post` 하고 다른 쪽에서 `lounge_join` 했을 때
-미확인으로 뜨면 끝이다.
+미확인으로 뜨면 끝이다. 뷰어를 띄워 두면 항목이 올라오는 것이 1초 안에 보인다.
 
 ### git
 
