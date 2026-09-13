@@ -203,6 +203,50 @@
     "D:\\project\\lounge\\packages\\core\\test\\contrast.test.ts": {
       "count": 1,
       "ts": 1789287027834
+    },
+    "D:\\project\\lounge\\packages\\mcp\\src\\actor.ts": {
+      "count": 1,
+      "ts": 1789287468455
+    },
+    "D:\\project\\lounge\\packages\\mcp\\src\\session.ts": {
+      "count": 1,
+      "ts": 1789287482689
+    },
+    "D:\\project\\lounge\\packages\\mcp\\src\\unread.ts": {
+      "count": 1,
+      "ts": 1789287505134
+    },
+    "D:\\project\\lounge\\packages\\mcp\\src\\briefing.ts": {
+      "count": 1,
+      "ts": 1789287551262
+    },
+    "D:\\project\\lounge\\packages\\mcp\\src\\sweep.ts": {
+      "count": 1,
+      "ts": 1789287568234
+    },
+    "D:\\project\\lounge\\packages\\core\\src\\relations.ts": {
+      "count": 1,
+      "ts": 1789287623085
+    },
+    "D:\\project\\lounge\\packages\\mcp\\src\\tools.ts": {
+      "count": 1,
+      "ts": 1789287692008
+    },
+    "D:\\project\\lounge\\packages\\mcp\\src\\server.ts": {
+      "count": 1,
+      "ts": 1789287727454
+    },
+    "D:\\project\\lounge\\packages\\mcp\\src\\index.ts": {
+      "count": 1,
+      "ts": 1789287740890
+    },
+    "D:\\project\\lounge\\packages\\mcp\\test\\checklist.test.ts": {
+      "count": 5,
+      "ts": 1789288391048
+    },
+    "D:\\project\\lounge\\packages\\mcp\\test\\stdio.test.ts": {
+      "count": 2,
+      "ts": 1789287962419
     }
   }
 }

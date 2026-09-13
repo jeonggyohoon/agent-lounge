@@ -59,9 +59,9 @@ reply_to: null
 | `title` | ✔ | 60자 이내 |
 | `about` | ✔ | **120자 이내. 빈 값 거부** |
 | `to` | | 빈 배열 = 전체 공지 |
-| `state` | ✔ | 기본 `open` |
+| `state` | ✔ | 기본 `open`. 자기 항목에만 쓴다 |
 | `refs` | | 작성 시점 sha 저장 |
-| `supersedes` | | 뒤집는 항목 id |
+| `supersedes` | | 뒤집는 항목 id. **가리켜진 항목의 파일은 건드리지 않는다** |
 
 `about` 강제가 이 설계의 방어선이다. 색인층이 무너지면 전부 본문을 열게
 되고 목적 자체가 사라진다. 자르지 말고 거부한다.
@@ -123,15 +123,29 @@ reply_to: null
 state == open
 AND acks/<id>/<actor>.json 에 state 없음
 AND ( actor ∈ to           # 지목은 워터마크 무시
-      OR (to 비어있음 AND at > watermark.since) )
+      OR (to 비어있음 AND at >= watermark.since) )
 ```
+
+경계는 **포함**이다. 합류하는 순간에 생긴 항목은 과거가 아니다 —
+워터마크는 합류 이전을 잘라내는 역할이지 합류 그 자체를 잘라내지 않는다.
+게으른 스윕이 만든 시스템 항목이 스윕을 일으킨 사람에게 안 보이는 일이
+여기서 생겼다.
 
 ### supersede 경고
 ```
-state == superseded
+state == superseded        # 저장된 값이거나, 다른 항목이 supersedes 로 가리키거나
 AND acks/<id>/<actor>.state == applied
 ```
 워터마크와 ack를 모두 무시하고 강제로 띄운다. 대체 항목에 ack를 남기면 해소.
+
+**대체당한 항목의 파일은 아무도 고치지 않는다.** 뒤집는 쪽이 자기 머리말에
+`supersedes` 를 적을 뿐이다. 남의 항목 파일에 `state: superseded` 를 써 넣으면
+한 파일을 두 주체가 쓰게 되고, 단일 작성자 원칙이 깨지는 순간 잠금이 필요해진다.
+
+그래서 `superseded` 는 저장된 값이 아니라 **관계에서 읽는다.** 작성자가 스스로
+적어둔 경우와 남이 뒤집어 관계로만 드러나는 경우를 하나로 본다.
+유도는 `packages/core/src/relations.ts` 가 하고 앱과 MCP가 같은 함수를 쓴다 —
+각자 유도하면 한쪽만 경고를 띄우는 날이 온다.
 
 ### stale
 ```

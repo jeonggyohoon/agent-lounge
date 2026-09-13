@@ -12,6 +12,7 @@ export * from './tokens.js';
 export * from './config.js';
 export * from './frontmatter.js';
 export * from './rules.js';
+export * from './relations.js';
 export * from './paths.js';
 export * from './io.js';
 export * from './sha.js';

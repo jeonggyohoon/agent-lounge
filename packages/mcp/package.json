@@ -1,0 +1,33 @@
+{
+  "name": "@lounge/mcp",
+  "version": "0.1.0",
+  "private": true,
+  "description": "라운지 MCP 서버. 도구 6개를 stdio 로 제공한다.",
+  "type": "module",
+  "bin": {
+    "lounge-mcp": "./dist/index.js"
+  },
+  "exports": {
+    ".": "./dist/index.js"
+  },
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "build": "tsc -p tsconfig.json",
+    "typecheck": "tsc -p tsconfig.json --noEmit",
+    "test": "vitest run"
+  },
+  "dependencies": {
+    "@lounge/core": "workspace:*",
+    "@modelcontextprotocol/sdk": "^1.12.0",
+    "zod": "^3.23.8"
+  },
+  "devDependencies": {
+    "@types/node": "^22.9.0",
+    "js-tiktoken": "^1.0.16",
+    "typescript": "^5.6.3",
+    "vitest": "^2.1.8",
+    "tsx": "^4.19.2"
+  }
+}

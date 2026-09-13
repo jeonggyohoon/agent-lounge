@@ -69,6 +69,20 @@ import { discoverReadonlyLounge } from '@lounge/core';
 const lounge = await discoverReadonlyLounge(myIO, projectDir);
 ```
 
+## MCP 서버
+
+```
+lounge-mcp --actor claude-code@auth [--client <이름>] [--cwd <경로>]
+```
+
+`--actor` 는 필수다. 없으면 시작하지 않는다 — 자동 추론은 PID·브랜치·폴더명
+전부 함정이 있고, 틀린 actor 로 조용히 도는 것이 가장 나쁘다.
+
+라운지를 못 찾아도 시작하지 않는다. 조용히 만들지 않는다.
+
+도구는 `lounge_join` `lounge_post` `lounge_open` `lounge_ack` `lounge_leave`
+`lounge_digest` 여섯이다. 규약은 `skills/lounge/SKILL.md` 에 있다.
+
 ## 뷰어
 
 ```

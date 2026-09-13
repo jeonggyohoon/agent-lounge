@@ -8,10 +8,13 @@ import {
   ENTRY_STATE_META,
   SESSION_STATE_META,
   basenamePath,
+  effectiveState,
+  supersededIds,
   type Ack,
   type Config,
   type Entry,
   type EntryDoc,
+  type EntryState,
   type ReadonlyLounge,
   type Session,
   type Tone,
@@ -24,6 +27,8 @@ export interface EntryView {
   /** 작성 시점과 달라진 ref 경로. `null` 은 "지문을 계산하지 못했다". */
   staleRefs: string[] | null;
   acks: Ack[];
+  /** 관계까지 반영한 상태. `entry.state` 와 다를 수 있다. */
+  state: EntryState;
   label: string;
   tone: Tone;
 }
@@ -68,6 +73,9 @@ export async function readSnapshot(lounge: ReadonlyLounge): Promise<Snapshot> {
     lounge.listSessions(),
   ]);
 
+  // 대체 여부는 저장된 값이 아니라 관계에서 읽는다. mcp 와 같은 함수를 쓴다.
+  const superseded = supersededIds(docs.map((d) => d.entry));
+
   const entries = await Promise.all(
     newestFirst(docs).map(async ({ entry, body }): Promise<EntryView> => {
       const [staleRefs, acks] = await Promise.all([
@@ -75,8 +83,9 @@ export async function readSnapshot(lounge: ReadonlyLounge): Promise<Snapshot> {
         lounge.staleRefs(entry).catch(() => null),
         lounge.listAcks(entry.id).catch(() => []),
       ]);
-      const meta = ENTRY_STATE_META[entry.state];
-      return { entry, body, staleRefs, acks, label: meta.label, tone: meta.tone };
+      const state = effectiveState(entry, superseded);
+      const meta = ENTRY_STATE_META[state];
+      return { entry, body, staleRefs, acks, state, label: meta.label, tone: meta.tone };
     }),
   );
 
