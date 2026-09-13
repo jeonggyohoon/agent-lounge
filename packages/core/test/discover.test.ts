@@ -2,8 +2,8 @@ import { mkdtemp, mkdir, rm, writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { resolve } from 'node:path';
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
-import { LoungeNotFoundError, findLounge, tryFindLounge } from '../src/discover.js';
-import { openLounge } from '../src/store.js';
+import { LoungeNotFoundError } from '../src/discover.js';
+import { findLounge, openLounge, tryFindLounge } from '../src/fs.js';
 
 let root: string;
 let deep: string;

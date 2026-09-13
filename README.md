@@ -49,8 +49,8 @@ pnpm build
 
 | 진입점 | 내용 |
 |---|---|
-| `@lounge/core` | 타입, 토큰, 검증, frontmatter. node 내장 모듈을 쓰지 않는다 |
-| `@lounge/core/fs` | 탐색, 읽기, 쓰기, ref 지문 |
+| `@lounge/core` | 타입, 토큰, 검증, frontmatter, 탐색과 읽기·쓰기 규칙. node 내장 모듈을 쓰지 않는다 |
+| `@lounge/core/fs` | node 어댑터와 편의 함수 |
 
 ```ts
 import { discoverLounge } from '@lounge/core/fs';
@@ -60,6 +60,35 @@ for (const { entry } of await lounge.listEntries()) {
   console.log(entry.about);
 }
 ```
+
+node 가 아닌 런타임이면 `LoungeIO` 를 구현해 끼운다. core 는 고치지 않는다.
+
+```ts
+import { discoverReadonlyLounge } from '@lounge/core';
+
+const lounge = await discoverReadonlyLounge(myIO, projectDir);
+```
+
+## 뷰어
+
+```
+pnpm --filter @lounge/viewer dev           # http://localhost:5173
+```
+
+백엔드는 `pnpm dev` 가 함께 띄운다. 다른 폴더를 보려면 `LOUNGE_PROJECT` 를
+주거나 화면에서 경로를 넣는다. 백엔드만 따로 띄우려면 `pnpm serve` 다.
+
+읽기 전용이고 세 겹으로 막는다.
+
+1. 백엔드가 `ReadonlyLounge` 만 만든다 — 쓰기 메서드가 객체에 없다
+2. 라우트가 전부 GET 이다 — `Route['method']` 가 `'GET'` 리터럴이라 쓰기
+   라우트는 타입이 거부하고, GET 외의 메서드는 405 로 끊는다
+3. 프런트엔드 소스에 `@lounge/core/fs` 도 `node:fs` 도 없다
+
+셋 다 테스트가 지킨다.
+
+**이 서버를 밖으로 노출하지 않는다.** `127.0.0.1` 에만 묶고 CORS 헤더를
+두지 않는 것이 방어의 전부다.
 
 ## 절대 규칙
 

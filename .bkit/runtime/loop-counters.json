@@ -1,16 +1,16 @@
 {
   "fileEditCounts": {
     "D:\\project\\lounge\\packages\\core\\src\\store.ts": {
-      "count": 1,
-      "ts": 1789282540476
+      "count": 2,
+      "ts": 1789284695596
     },
     "D:\\project\\lounge\\.lounge\\config.json": {
       "count": 1,
       "ts": 1789282556298
     },
     "D:\\project\\lounge\\docs\\ARCHITECTURE.md": {
-      "count": 2,
-      "ts": 1789282580862
+      "count": 7,
+      "ts": 1789286350782
     },
     "D:\\project\\lounge\\.lounge\\entries\\20260912-1652-codex.md": {
       "count": 1,
@@ -45,8 +45,8 @@
       "ts": 1789282740189
     },
     "D:\\project\\lounge\\packages\\core\\test\\lounge.test.ts": {
-      "count": 1,
-      "ts": 1789282755089
+      "count": 2,
+      "ts": 1789284812563
     },
     "D:\\project\\lounge\\packages\\core\\src\\frontmatter.ts": {
       "count": 1,
@@ -71,6 +71,138 @@
     "D:\\project\\lounge\\packages\\core\\test\\docs.test.ts": {
       "count": 1,
       "ts": 1789283845364
+    },
+    "D:\\project\\lounge\\packages\\core\\src\\paths.ts": {
+      "count": 1,
+      "ts": 1789284608790
+    },
+    "D:\\project\\lounge\\packages\\core\\src\\io.ts": {
+      "count": 1,
+      "ts": 1789284626598
+    },
+    "D:\\project\\lounge\\packages\\core\\src\\sha.ts": {
+      "count": 1,
+      "ts": 1789284638927
+    },
+    "D:\\project\\lounge\\packages\\core\\src\\discover.ts": {
+      "count": 1,
+      "ts": 1789284651249
+    },
+    "D:\\project\\lounge\\packages\\core\\src\\node-io.ts": {
+      "count": 1,
+      "ts": 1789284706073
+    },
+    "D:\\project\\lounge\\.lounge\\entries\\20260913-1620-claude-code@core.md": {
+      "count": 1,
+      "ts": 1789284804463
+    },
+    "D:\\project\\lounge\\apps\\viewer\\src\\lib\\tauriIo.ts": {
+      "count": 1,
+      "ts": 1789284891085
+    },
+    "D:\\project\\lounge\\apps\\viewer\\src\\lib\\snapshot.ts": {
+      "count": 1,
+      "ts": 1789284908635
+    },
+    "D:\\project\\lounge\\apps\\viewer\\src\\lib\\time.ts": {
+      "count": 1,
+      "ts": 1789284920214
+    },
+    "D:\\project\\lounge\\apps\\viewer\\src\\lib\\useLounge.ts": {
+      "count": 2,
+      "ts": 1789285778624
+    },
+    "D:\\project\\lounge\\apps\\viewer\\src\\theme.ts": {
+      "count": 1,
+      "ts": 1789284953962
+    },
+    "D:\\project\\lounge\\apps\\viewer\\src\\components\\Dot.tsx": {
+      "count": 1,
+      "ts": 1789284958891
+    },
+    "D:\\project\\lounge\\apps\\viewer\\src\\components\\PresencePanel.tsx": {
+      "count": 1,
+      "ts": 1789284970841
+    },
+    "D:\\project\\lounge\\apps\\viewer\\src\\components\\Timeline.tsx": {
+      "count": 1,
+      "ts": 1789284985561
+    },
+    "D:\\project\\lounge\\apps\\viewer\\src\\components\\EntryDetail.tsx": {
+      "count": 1,
+      "ts": 1789284999598
+    },
+    "D:\\project\\lounge\\apps\\viewer\\src\\components\\EmptyState.tsx": {
+      "count": 2,
+      "ts": 1789285788566
+    },
+    "D:\\project\\lounge\\apps\\viewer\\src\\App.tsx": {
+      "count": 2,
+      "ts": 1789285798689
+    },
+    "D:\\project\\lounge\\apps\\viewer\\src\\main.tsx": {
+      "count": 1,
+      "ts": 1789285022408
+    },
+    "D:\\project\\lounge\\apps\\viewer\\src\\styles.css": {
+      "count": 2,
+      "ts": 1789285803672
+    },
+    "D:\\project\\lounge\\apps\\viewer\\src-tauri\\capabilities\\default.json": {
+      "count": 1,
+      "ts": 1789285082280
+    },
+    "D:\\project\\lounge\\apps\\viewer\\src-tauri\\tauri.conf.json": {
+      "count": 1,
+      "ts": 1789285087500
+    },
+    "D:\\project\\lounge\\apps\\viewer\\test\\readonly.test.ts": {
+      "count": 3,
+      "ts": 1789285839656
+    },
+    "D:\\project\\lounge\\apps\\viewer\\test\\tokens.test.ts": {
+      "count": 1,
+      "ts": 1789285130329
+    },
+    "D:\\project\\lounge\\apps\\viewer\\test\\snapshot.test.ts": {
+      "count": 1,
+      "ts": 1789285154467
+    },
+    "D:\\project\\lounge\\apps\\viewer\\test\\time.test.ts": {
+      "count": 1,
+      "ts": 1789285164442
+    },
+    "D:\\project\\lounge\\apps\\viewer\\server\\routes.ts": {
+      "count": 1,
+      "ts": 1789285702711
+    },
+    "D:\\project\\lounge\\apps\\viewer\\server\\watch.ts": {
+      "count": 1,
+      "ts": 1789285720800
+    },
+    "D:\\project\\lounge\\apps\\viewer\\server\\index.ts": {
+      "count": 1,
+      "ts": 1789285746081
+    },
+    "D:\\project\\lounge\\apps\\viewer\\vite.config.ts": {
+      "count": 1,
+      "ts": 1789285816108
+    },
+    "D:\\project\\lounge\\apps\\viewer\\test\\server.test.ts": {
+      "count": 1,
+      "ts": 1789285884280
+    },
+    "D:\\project\\lounge\\.lounge\\entries\\20260913-1805-claude-code@ui.md": {
+      "count": 1,
+      "ts": 1789286376787
+    },
+    "D:\\project\\lounge\\packages\\core\\src\\tokens.ts": {
+      "count": 1,
+      "ts": 1789287011576
+    },
+    "D:\\project\\lounge\\packages\\core\\test\\contrast.test.ts": {
+      "count": 1,
+      "ts": 1789287027834
     }
   }
 }

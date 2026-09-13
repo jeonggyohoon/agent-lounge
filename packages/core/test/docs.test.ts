@@ -8,7 +8,7 @@ import { readFile } from 'node:fs/promises';
 import { resolve } from 'node:path';
 import { describe, expect, it } from 'vitest';
 import { SHARED_RULES, containsRule, normalizeProse } from '../src/rules.js';
-import { discoverLounge } from '../src/store.js';
+import { discoverLounge } from '../src/fs.js';
 
 const lounge = await discoverLounge(resolve(import.meta.dirname, '..'));
 

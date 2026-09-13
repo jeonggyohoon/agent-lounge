@@ -1,19 +1,29 @@
 /**
- * 라운지 파일 입출력.
+ * 라운지 읽기와 쓰기.
  *
  * 경로는 전부 `PATHS` 를 거친다. 읽을 때도 쓸 때도 zod 로 검증한다 —
  * 손으로 쓴 파일이나 옛 버전이 남긴 파일이 조용히 흘러 들어오면 앱과 MCP가
  * 서로 다른 것을 보게 된다.
  *
+ * 클래스가 둘이다.
+ *
+ * | | 가진 것 | 쓰는 쪽 |
+ * |---|---|---|
+ * | `ReadonlyLounge` | 읽기 | 뷰어 |
+ * | `Lounge` | 읽기 + 쓰기 | MCP |
+ *
+ * **뷰어는 `ReadonlyLounge` 만 손에 쥔다.** 쓰기를 참으라고 부탁하는 것이
+ * 아니라 부를 함수가 아예 없다.
+ *
  * **단일 작성자 원칙**을 전제한다. 한 파일을 두 주체가 쓰는 경우가 없으므로
- * 잠금이나 병합이 없다. 다만 같은 파일을 읽는 중에 쓰는 경우는 있으므로
- * 쓰기는 임시 파일 + rename 으로 원자적으로 한다.
+ * 잠금이나 병합이 없다. 다만 읽는 중에 쓰는 경우는 있으므로 쓰기는
+ * 임시 파일 + rename 으로 원자적으로 한다.
  */
-import { mkdir, readFile, readdir, rename, writeFile } from 'node:fs/promises';
-import { dirname, resolve } from 'node:path';
 import { parseConfig, type Config } from './config.js';
-import { findLounge, projectRootOf } from './discover.js';
+import { findLoungeWith, projectRootOf } from './discover.js';
 import { parseFrontmatter, stringifyFrontmatter } from './frontmatter.js';
+import type { LoungeIO, LoungeWriteIO } from './io.js';
+import { basenamePath, joinPath } from './paths.js';
 import { refSha } from './sha.js';
 import {
   AckSchema,
@@ -45,59 +55,37 @@ export class LoungeFileError extends Error {
   }
 }
 
-async function readMaybe(path: string): Promise<string | null> {
-  try {
-    return await readFile(path, 'utf8');
-  } catch (error) {
-    if ((error as NodeJS.ErrnoException).code === 'ENOENT') return null;
-    throw error;
-  }
-}
-
-async function listDir(path: string): Promise<string[]> {
-  try {
-    return await readdir(path);
-  } catch (error) {
-    if ((error as NodeJS.ErrnoException).code === 'ENOENT') return [];
-    throw error;
-  }
-}
-
-/** 임시 파일에 쓰고 rename. 반쯤 쓰인 파일을 뷰어가 읽는 일이 없다. */
-async function writeAtomic(path: string, data: string): Promise<void> {
-  await mkdir(dirname(path), { recursive: true });
-  const tmp = `${path}.${process.pid}.${Date.now()}.tmp`;
-  await writeFile(tmp, data, 'utf8');
-  await rename(tmp, path);
-}
-
 function issuesOf(error: { issues: { path: PropertyKey[]; message: string }[] }): string {
   return error.issues.map((i) => `${i.path.join('.')} ${i.message}`.trim()).join('; ');
 }
 
-export class Lounge {
-  /** `.lounge/` 의 절대 경로 */
+/** 읽기만 하는 라운지. */
+export class ReadonlyLounge {
+  /** `.lounge/` 의 경로 */
   readonly dir: string;
 
   /** ref 상대 경로의 기준점 */
   readonly projectRoot: string;
 
-  constructor(dir: string) {
-    this.dir = resolve(dir);
-    this.projectRoot = projectRootOf(this.dir);
+  protected readonly io: LoungeIO;
+
+  constructor(io: LoungeIO, dir: string) {
+    this.io = io;
+    this.dir = dir;
+    this.projectRoot = projectRootOf(dir);
   }
 
   /** `.lounge/` 안의 상대 경로를 절대 경로로. */
   path(relative: string): string {
-    return resolve(this.dir, relative);
+    return joinPath(this.dir, relative);
   }
 
   // ── config ────────────────────────────────────────────────────────────
 
   async readConfig(): Promise<Config> {
     const file = this.path(PATHS.config);
-    const raw = await readMaybe(file);
-    const fallback = this.projectRoot.split(/[\\/]/).pop() || 'lounge';
+    const raw = await this.io.readText(file);
+    const fallback = basenamePath(this.projectRoot) || 'lounge';
     if (raw === null) return parseConfig({}, fallback);
     try {
       return parseConfig(JSON.parse(raw), fallback);
@@ -106,11 +94,16 @@ export class Lounge {
     }
   }
 
+  /** 라운지 규약 본문. 없으면 `null`. */
+  async readGuide(): Promise<string | null> {
+    return this.io.readText(this.path('LOUNGE.md'));
+  }
+
   // ── entries ───────────────────────────────────────────────────────────
 
   /** id 오름차순. id 가 시각으로 시작하므로 사전순이 곧 시간순이다. */
   async listEntryIds(): Promise<string[]> {
-    const names = await listDir(this.path('entries'));
+    const names = await this.io.listDir(this.path('entries'));
     return names
       .filter((n) => n.endsWith('.md'))
       .map((n) => n.slice(0, -3))
@@ -119,15 +112,15 @@ export class Lounge {
 
   async readEntry(id: string): Promise<EntryDoc> {
     const file = this.path(PATHS.entry(id));
-    const raw = await readMaybe(file);
+    const raw = await this.io.readText(file);
     if (raw === null) throw new LoungeFileError(file, '항목이 없습니다');
-    return this.#parseEntry(file, raw);
+    return parseEntryDoc(file, raw);
   }
 
   async tryReadEntry(id: string): Promise<EntryDoc | null> {
     const file = this.path(PATHS.entry(id));
-    const raw = await readMaybe(file);
-    return raw === null ? null : this.#parseEntry(file, raw);
+    const raw = await this.io.readText(file);
+    return raw === null ? null : parseEntryDoc(file, raw);
   }
 
   async listEntries(): Promise<EntryDoc[]> {
@@ -135,10 +128,111 @@ export class Lounge {
     return Promise.all(ids.map((id) => this.readEntry(id)));
   }
 
+  // ── acks ──────────────────────────────────────────────────────────────
+
+  async listAckActors(entry: string): Promise<string[]> {
+    const names = await this.io.listDir(this.path(PATHS.ackDir(entry)));
+    return names
+      .filter((n) => n.endsWith('.json'))
+      .map((n) => n.slice(0, -5))
+      .sort();
+  }
+
+  async readAck(entry: string, actor: string): Promise<Ack | null> {
+    const file = this.path(PATHS.ack(entry, actor));
+    const json = await this.readJson(file);
+    if (json === null) return null;
+    const result = AckSchema.safeParse(json);
+    if (!result.success) throw new LoungeFileError(file, issuesOf(result.error));
+    return result.data;
+  }
+
+  async listAcks(entry: string): Promise<Ack[]> {
+    const actors = await this.listAckActors(entry);
+    const acks = await Promise.all(actors.map((a) => this.readAck(entry, a)));
+    return acks.filter((a): a is Ack => a !== null);
+  }
+
+  // ── sessions ──────────────────────────────────────────────────────────
+
+  async listSessions(): Promise<Session[]> {
+    const names = await this.io.listDir(this.path('sessions'));
+    const ids = names.filter((n) => n.endsWith('.json')).map((n) => n.slice(0, -5));
+    const sessions = await Promise.all(ids.map((id) => this.readSession(id)));
+    return sessions
+      .filter((s): s is Session => s !== null)
+      .sort((a, b) => a.joined_at.localeCompare(b.joined_at));
+  }
+
+  async readSession(id: string): Promise<Session | null> {
+    const file = this.path(PATHS.session(id));
+    const json = await this.readJson(file);
+    if (json === null) return null;
+    const result = SessionSchema.safeParse(json);
+    if (!result.success) throw new LoungeFileError(file, issuesOf(result.error));
+    return result.data;
+  }
+
+  // ── watermark, resume ─────────────────────────────────────────────────
+
+  async readWatermark(actor: string): Promise<Watermark | null> {
+    const file = this.path(PATHS.watermark(actor));
+    const json = await this.readJson(file);
+    if (json === null) return null;
+    const result = WatermarkSchema.safeParse(json);
+    if (!result.success) throw new LoungeFileError(file, issuesOf(result.error));
+    return result.data;
+  }
+
+  async readResume(actor: string): Promise<string | null> {
+    return this.io.readText(this.path(PATHS.resume(actor)));
+  }
+
+  // ── stale ─────────────────────────────────────────────────────────────
+
+  /**
+   * 작성 시점 지문과 달라진 ref 경로들. **저장하지 않는다.**
+   * 라운지가 아니라 코드가 진실이므로 읽을 때마다 새로 계산한다.
+   */
+  async staleRefs(entry: Entry): Promise<string[]> {
+    const checked = await Promise.all(
+      entry.refs.map(async (ref) => {
+        if (!ref.sha) return null;
+        const current = await refSha(this.io, this.projectRoot, ref.path);
+        return current === ref.sha ? null : ref.path;
+      }),
+    );
+    return checked.filter((p): p is string => p !== null);
+  }
+
+  async isStale(entry: Entry): Promise<boolean> {
+    return (await this.staleRefs(entry)).length > 0;
+  }
+
+  protected async readJson(file: string): Promise<unknown | null> {
+    const raw = await this.io.readText(file);
+    if (raw === null) return null;
+    try {
+      return JSON.parse(raw);
+    } catch (cause) {
+      throw new LoungeFileError(file, (cause as Error).message);
+    }
+  }
+}
+
+/** 읽고 쓰는 라운지. MCP 만 이걸 쥔다. */
+export class Lounge extends ReadonlyLounge {
+  protected override readonly io: LoungeWriteIO;
+
+  constructor(io: LoungeWriteIO, dir: string) {
+    super(io, dir);
+    this.io = io;
+  }
+
   /** 머리말을 검증해 기록한다. `id` `by` `at` 은 호출자가 이미 채워 온 값이다. */
   async writeEntry(entry: unknown, body: string): Promise<EntryDoc> {
     const parsed = EntrySchema.parse(entry);
-    await writeAtomic(this.path(PATHS.entry(parsed.id)), stringifyFrontmatter(parsed, body));
+    await this.writeAtomic(this.path(PATHS.entry(parsed.id)), stringifyFrontmatter(parsed, body));
     return { entry: parsed, body: body.trim() };
   }
 
@@ -154,95 +248,22 @@ export class Lounge {
     }
   }
 
-  #parseEntry(file: string, raw: string): EntryDoc {
-    let doc;
-    try {
-      doc = parseFrontmatter(raw);
-    } catch (cause) {
-      throw new LoungeFileError(file, (cause as Error).message);
-    }
-    const result = EntrySchema.safeParse(doc.data);
-    if (!result.success) throw new LoungeFileError(file, issuesOf(result.error));
-    return { entry: result.data, body: doc.body };
-  }
-
-  // ── acks ──────────────────────────────────────────────────────────────
-
-  async #readJson(file: string): Promise<unknown | null> {
-    const raw = await readMaybe(file);
-    if (raw === null) return null;
-    try {
-      return JSON.parse(raw);
-    } catch (cause) {
-      throw new LoungeFileError(file, (cause as Error).message);
-    }
-  }
-
-  async listAckActors(entry: string): Promise<string[]> {
-    const names = await listDir(this.path(PATHS.ackDir(entry)));
-    return names
-      .filter((n) => n.endsWith('.json'))
-      .map((n) => n.slice(0, -5))
-      .sort();
-  }
-
-  async readAck(entry: string, actor: string): Promise<Ack | null> {
-    const file = this.path(PATHS.ack(entry, actor));
-    const json = await this.#readJson(file);
-    if (json === null) return null;
-    const result = AckSchema.safeParse(json);
-    if (!result.success) throw new LoungeFileError(file, issuesOf(result.error));
-    return result.data;
-  }
-
-  async listAcks(entry: string): Promise<Ack[]> {
-    const actors = await this.listAckActors(entry);
-    const acks = await Promise.all(actors.map((a) => this.readAck(entry, a)));
-    return acks.filter((a): a is Ack => a !== null);
-  }
-
   async writeAck(ack: unknown): Promise<Ack> {
     const parsed = AckSchema.parse(ack);
-    const file = this.path(PATHS.ack(parsed.entry, parsed.actor));
-    await writeAtomic(file, `${JSON.stringify(parsed, null, 2)}\n`);
+    await this.writeAtomic(
+      this.path(PATHS.ack(parsed.entry, parsed.actor)),
+      `${JSON.stringify(parsed, null, 2)}\n`,
+    );
     return parsed;
-  }
-
-  // ── sessions ──────────────────────────────────────────────────────────
-
-  async listSessions(): Promise<Session[]> {
-    const names = await listDir(this.path('sessions'));
-    const ids = names.filter((n) => n.endsWith('.json')).map((n) => n.slice(0, -5));
-    const sessions = await Promise.all(ids.map((id) => this.readSession(id)));
-    return sessions
-      .filter((s): s is Session => s !== null)
-      .sort((a, b) => a.joined_at.localeCompare(b.joined_at));
-  }
-
-  async readSession(id: string): Promise<Session | null> {
-    const file = this.path(PATHS.session(id));
-    const json = await this.#readJson(file);
-    if (json === null) return null;
-    const result = SessionSchema.safeParse(json);
-    if (!result.success) throw new LoungeFileError(file, issuesOf(result.error));
-    return result.data;
   }
 
   async writeSession(session: unknown): Promise<Session> {
     const parsed = SessionSchema.parse(session);
-    await writeAtomic(this.path(PATHS.session(parsed.id)), `${JSON.stringify(parsed, null, 2)}\n`);
+    await this.writeAtomic(
+      this.path(PATHS.session(parsed.id)),
+      `${JSON.stringify(parsed, null, 2)}\n`,
+    );
     return parsed;
-  }
-
-  // ── watermark ─────────────────────────────────────────────────────────
-
-  async readWatermark(actor: string): Promise<Watermark | null> {
-    const file = this.path(PATHS.watermark(actor));
-    const json = await this.#readJson(file);
-    if (json === null) return null;
-    const result = WatermarkSchema.safeParse(json);
-    if (!result.success) throw new LoungeFileError(file, issuesOf(result.error));
-    return result.data;
   }
 
   /**
@@ -253,49 +274,52 @@ export class Lounge {
     const existing = await this.readWatermark(actor);
     if (existing) return existing;
     const parsed = WatermarkSchema.parse({ actor, since });
-    await writeAtomic(this.path(PATHS.watermark(actor)), `${JSON.stringify(parsed, null, 2)}\n`);
+    await this.writeAtomic(
+      this.path(PATHS.watermark(actor)),
+      `${JSON.stringify(parsed, null, 2)}\n`,
+    );
     return parsed;
-  }
-
-  // ── resume ────────────────────────────────────────────────────────────
-
-  async readResume(actor: string): Promise<string | null> {
-    return readMaybe(this.path(PATHS.resume(actor)));
   }
 
   /** 매번 덮어쓴다. 미래의 자신에게 쓰는 메모라 이력이 필요 없다. */
   async writeResume(actor: string, text: string): Promise<void> {
-    await writeAtomic(this.path(PATHS.resume(actor)), `${text.trim()}\n`);
+    await this.writeAtomic(this.path(PATHS.resume(actor)), `${text.trim()}\n`);
   }
 
-  // ── stale ─────────────────────────────────────────────────────────────
-
-  /**
-   * 작성 시점 sha 와 달라진 ref 경로들. **저장하지 않는다.**
-   * 라운지가 아니라 코드가 진실이므로 읽을 때마다 새로 계산한다.
-   */
-  async staleRefs(entry: Entry): Promise<string[]> {
-    const checked = await Promise.all(
-      entry.refs.map(async (ref) => {
-        if (!ref.sha) return null;
-        const current = await refSha(this.projectRoot, ref.path);
-        return current === ref.sha ? null : ref.path;
-      }),
-    );
-    return checked.filter((p): p is string => p !== null);
-  }
-
-  async isStale(entry: Entry): Promise<boolean> {
-    return (await this.staleRefs(entry)).length > 0;
+  /** 임시 파일에 쓰고 rename. 반쯤 쓰인 파일을 뷰어가 읽는 일이 없다. */
+  private async writeAtomic(path: string, data: string): Promise<void> {
+    const tmp = `${path}.${Date.now()}.${Math.random().toString(36).slice(2, 8)}.tmp`;
+    await this.io.writeText(tmp, data);
+    try {
+      await this.io.rename(tmp, path);
+    } catch (error) {
+      await this.io.remove(tmp);
+      throw error;
+    }
   }
 }
 
-/** 이미 아는 경로로 연다. 존재 여부는 확인하지 않는다. */
-export function openLounge(dir: string): Lounge {
-  return new Lounge(dir);
+function parseEntryDoc(file: string, raw: string): EntryDoc {
+  let doc;
+  try {
+    doc = parseFrontmatter(raw);
+  } catch (cause) {
+    throw new LoungeFileError(file, (cause as Error).message);
+  }
+  const result = EntrySchema.safeParse(doc.data);
+  if (!result.success) throw new LoungeFileError(file, issuesOf(result.error));
+  return { entry: result.data, body: doc.body };
 }
 
-/** 위로 올라가며 찾아 연다. 못 찾으면 `LoungeNotFoundError`. */
-export async function discoverLounge(startDir?: string): Promise<Lounge> {
-  return new Lounge(await findLounge(startDir));
+/** 이미 아는 경로로 읽기 전용으로 연다. */
+export function openReadonlyLounge(io: LoungeIO, dir: string): ReadonlyLounge {
+  return new ReadonlyLounge(io, dir);
+}
+
+/** 위로 올라가며 찾아 읽기 전용으로 연다. 못 찾으면 `LoungeNotFoundError`. */
+export async function discoverReadonlyLounge(
+  io: LoungeIO,
+  startDir: string,
+): Promise<ReadonlyLounge> {
+  return new ReadonlyLounge(io, await findLoungeWith(io, startDir));
 }

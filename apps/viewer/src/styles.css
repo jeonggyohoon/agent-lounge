@@ -1,0 +1,491 @@
+/*
+ * 뷰어 스타일.
+ *
+ * **hex 값과 px 값을 직접 쓰지 않는다.** 색·간격·타이포는 전부 토큰 변수이고,
+ * 변수의 실제 값은 packages/core/src/tokens.ts 에서 온다.
+ *
+ * 예외는 1px 실선 하나뿐이다. 경계선 두께는 간격 척도(4의 배수)에 속하지 않고
+ * 화면에서 가장 얇은 선을 뜻한다. 이걸 var(--s-4) 로 쓰면 선이 아니라 띠가 된다.
+ */
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  background: var(--c-paper);
+  color: var(--c-ink);
+  font-family: Pretendard, 'Pretendard Variable', system-ui, -apple-system, sans-serif;
+  font-size: var(--t-body-size);
+  font-weight: var(--t-body-weight);
+  line-height: 1.5;
+}
+
+.mono {
+  font-family: ui-monospace, SFMono-Regular, 'Cascadia Mono', Consolas, monospace;
+}
+
+.shell {
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+  overflow: hidden;
+}
+
+/* ── 헤더 ─────────────────────────────────────────────────────────────── */
+
+.header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--s-12);
+  height: var(--s-32);
+  flex: none;
+  padding: 0 var(--s-16);
+  border-bottom: 1px solid var(--c-line);
+  background: var(--c-paper);
+}
+
+.header__project {
+  font-size: var(--t-display-size);
+  font-weight: var(--t-display-weight);
+}
+
+.header__path {
+  border: 0;
+  padding: 0;
+  background: none;
+  color: var(--c-muted);
+  font-size: var(--t-meta-size);
+  font-weight: var(--t-meta-weight);
+  font-family: ui-monospace, SFMono-Regular, 'Cascadia Mono', Consolas, monospace;
+  cursor: pointer;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* ── 재실 패널 ────────────────────────────────────────────────────────── */
+
+/*
+ * 재실이 주인공이다. 헤더가 paper 로 물러나고 이 띠만 card 로 떠오른다.
+ * 위아래 선까지 있어야 헤더에 붙은 꼬리가 아니라 독립된 영역으로 읽힌다.
+ */
+.presence {
+  flex: none;
+  padding: var(--s-12) var(--s-16);
+  border-top: 1px solid var(--c-line);
+  border-bottom: 1px solid var(--c-line);
+  background: var(--c-card);
+}
+
+.presence__empty {
+  margin: 0;
+  color: var(--c-muted);
+  font-size: var(--t-body-size);
+}
+
+.presence__row {
+  display: grid;
+  grid-template-columns: var(--s-16) minmax(0, 1fr) auto auto;
+  align-items: center;
+  gap: var(--s-12);
+  padding: var(--s-4) 0;
+}
+
+.presence__actor {
+  font-size: var(--t-body-size);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.presence__seen,
+.presence__note {
+  color: var(--c-muted);
+  font-size: var(--t-meta-size);
+  white-space: nowrap;
+}
+
+.dot {
+  width: var(--s-8);
+  height: var(--s-8);
+  border-radius: 50%;
+  border: 1px solid currentColor;
+  justify-self: center;
+}
+
+.dot--live {
+  color: var(--c-live);
+  background: currentColor;
+}
+
+.dot--signal {
+  color: var(--c-signal);
+}
+
+.dot--alert {
+  color: var(--c-alert);
+}
+
+.dot--muted {
+  color: var(--c-muted);
+}
+
+/* ── 타임라인 ─────────────────────────────────────────────────────────── */
+
+.main {
+  flex: 1;
+  overflow-y: auto;
+  padding: var(--s-12) var(--s-16);
+}
+
+.timeline {
+  display: flex;
+  flex-direction: column;
+  gap: var(--s-8);
+}
+
+.timeline__empty {
+  margin: 0;
+  padding: var(--s-12) var(--s-16);
+  color: var(--c-muted);
+}
+
+.entry {
+  display: flex;
+  flex-direction: column;
+  gap: var(--s-4);
+  width: 100%;
+  padding: var(--s-8) var(--s-12);
+  border: 1px solid var(--c-line);
+  border-radius: var(--radius);
+  background: var(--c-card);
+  color: inherit;
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+
+/* 처리된 항목은 숨기지 않는다. 흐려지되 남아 있어야 한다. */
+.entry--settled {
+  opacity: 0.55;
+}
+
+.entry--selected {
+  border-color: var(--c-ink);
+}
+
+.entry__meta {
+  display: flex;
+  align-items: baseline;
+  gap: var(--s-8);
+  color: var(--c-muted);
+  font-size: var(--t-meta-size);
+}
+
+.entry__clock,
+.entry__day {
+  font-family: ui-monospace, SFMono-Regular, 'Cascadia Mono', Consolas, monospace;
+}
+
+.entry__area {
+  font-family: ui-monospace, SFMono-Regular, 'Cascadia Mono', Consolas, monospace;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* 항목 상태는 점이 아니라 오른쪽 끝 작은 글자다 */
+.entry__state {
+  margin-left: auto;
+  white-space: nowrap;
+}
+
+.entry__state--live {
+  color: var(--c-live);
+}
+
+.entry__state--signal {
+  color: var(--c-signal);
+}
+
+.entry__state--alert {
+  color: var(--c-alert);
+}
+
+.entry__state--muted {
+  color: var(--c-muted);
+}
+
+.entry__title {
+  font-size: var(--t-title-size);
+  font-weight: var(--t-title-weight);
+}
+
+.entry__about {
+  color: var(--c-muted);
+  font-size: var(--t-body-size);
+}
+
+.entry__stale {
+  color: var(--c-signal);
+  font-size: var(--t-meta-size);
+}
+
+/* ── 상세 패널 ────────────────────────────────────────────────────────── */
+
+.detail {
+  position: fixed;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  width: min(52ch, 100%);
+  overflow-y: auto;
+  padding: var(--s-16);
+  border-left: 1px solid var(--c-line);
+  background: var(--c-card);
+}
+
+.detail__head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--s-8);
+  margin-bottom: var(--s-12);
+}
+
+.detail__state {
+  font-size: var(--t-meta-size);
+}
+
+.detail__state--live {
+  color: var(--c-live);
+}
+
+.detail__state--signal {
+  color: var(--c-signal);
+}
+
+.detail__state--alert {
+  color: var(--c-alert);
+}
+
+.detail__state--muted {
+  color: var(--c-muted);
+}
+
+.detail__close {
+  border: 1px solid var(--c-line);
+  border-radius: var(--radius);
+  padding: var(--s-4) var(--s-8);
+  background: var(--c-paper);
+  color: var(--c-ink);
+  font: inherit;
+  font-size: var(--t-meta-size);
+  cursor: pointer;
+}
+
+.detail__title {
+  margin: 0 0 var(--s-4);
+  font-size: var(--t-display-size);
+  font-weight: var(--t-display-weight);
+}
+
+.detail__about {
+  margin: 0 0 var(--s-16);
+  color: var(--c-muted);
+}
+
+.detail__facts {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  gap: var(--s-4) var(--s-12);
+  margin: 0 0 var(--s-24);
+  font-size: var(--t-meta-size);
+}
+
+.detail__term {
+  color: var(--c-muted);
+  white-space: nowrap;
+}
+
+.detail__value {
+  margin: 0;
+  overflow-wrap: anywhere;
+}
+
+.detail__section {
+  margin-bottom: var(--s-24);
+}
+
+.detail__heading {
+  margin: 0 0 var(--s-8);
+  font-size: var(--t-title-size);
+  font-weight: var(--t-title-weight);
+}
+
+.detail__ref,
+.detail__ack {
+  display: flex;
+  align-items: baseline;
+  gap: var(--s-8);
+  margin: 0 0 var(--s-4);
+  font-size: var(--t-meta-size);
+}
+
+.detail__ack-actor {
+  color: var(--c-ink);
+}
+
+.detail__ack-note {
+  color: var(--c-muted);
+}
+
+.detail__badge {
+  color: var(--c-signal);
+}
+
+.detail__note {
+  margin: 0;
+  color: var(--c-muted);
+  font-size: var(--t-meta-size);
+}
+
+.detail__body {
+  margin: 0;
+  font-family: inherit;
+  font-size: var(--t-body-size);
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+
+/* ── 빈 화면 ──────────────────────────────────────────────────────────── */
+
+.empty {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: var(--s-12);
+  margin: auto;
+  padding: var(--s-32);
+  max-width: 72ch;
+}
+
+.empty__title {
+  margin: 0;
+  font-size: var(--t-display-size);
+  font-weight: var(--t-display-weight);
+}
+
+.empty__hint {
+  margin: 0;
+  color: var(--c-muted);
+  overflow-wrap: anywhere;
+}
+
+.empty__form {
+  display: flex;
+  gap: var(--s-8);
+  width: 100%;
+}
+
+.empty__input {
+  flex: 1;
+  min-width: 0;
+  border: 1px solid var(--c-line);
+  border-radius: var(--radius);
+  padding: var(--s-8) var(--s-12);
+  background: var(--c-card);
+  color: var(--c-ink);
+  font-size: var(--t-body-size);
+}
+
+.empty__input::placeholder {
+  color: var(--c-muted);
+}
+
+.empty__action {
+  border: 1px solid var(--c-line);
+  border-radius: var(--radius);
+  padding: var(--s-8) var(--s-16);
+  background: var(--c-card);
+  color: var(--c-ink);
+  font: inherit;
+  cursor: pointer;
+}
+
+.empty__recents {
+  margin-top: var(--s-12);
+  width: 100%;
+}
+
+.empty__heading {
+  margin: 0 0 var(--s-8);
+  color: var(--c-muted);
+  font-size: var(--t-meta-size);
+}
+
+.empty__recent {
+  display: flex;
+  align-items: center;
+  gap: var(--s-12);
+  padding: var(--s-4) 0;
+}
+
+.empty__recent-open {
+  flex: 1;
+  border: 0;
+  padding: 0;
+  background: none;
+  color: var(--c-ink);
+  font-size: var(--t-meta-size);
+  text-align: left;
+  cursor: pointer;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.empty__recent-forget {
+  border: 0;
+  padding: 0;
+  background: none;
+  color: var(--c-muted);
+  font: inherit;
+  font-size: var(--t-meta-size);
+  cursor: pointer;
+}
+
+/* ── 움직임 ───────────────────────────────────────────────────────────── */
+
+/* 둘뿐이다. 새 항목 도착과 재실 변화. */
+
+.entry--arrived {
+  animation: arrive 120ms ease-out;
+}
+
+@keyframes arrive {
+  from {
+    opacity: 0;
+    transform: translateY(calc(var(--s-4) * -1));
+  }
+}
+
+.dot--blink {
+  animation: blink 300ms steps(1, end) 2;
+}
+
+@keyframes blink {
+  50% {
+    opacity: 0;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .entry--arrived,
+  .dot--blink {
+    animation: none;
+  }
+}

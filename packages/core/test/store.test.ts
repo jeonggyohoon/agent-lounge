@@ -2,8 +2,8 @@ import { mkdtemp, mkdir, rm, writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { resolve } from 'node:path';
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
-import { refSha } from '../src/sha.js';
-import { Lounge, openLounge } from '../src/store.js';
+import { openLounge, refShaOf } from '../src/fs.js';
+import type { Lounge } from '../src/store.js';
 import { entryId } from '../src/types.js';
 
 let root: string;
@@ -115,7 +115,7 @@ describe('stale', () => {
     await mkdir(resolve(root, 'docs'), { recursive: true });
     await writeFile(target, '처음 내용\n');
 
-    const sha = await refSha(root, 'docs/api.md');
+    const sha = await refShaOf(root, 'docs/api.md');
     const entry = { ...baseEntry, refs: [{ path: 'docs/api.md', sha: sha! }] };
     const { entry: written } = await lounge.writeEntry(entry, '');
     expect(await lounge.isStale(written)).toBe(false);
