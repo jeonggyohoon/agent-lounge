@@ -13,7 +13,7 @@ import { tmpdir } from 'node:os';
 import { resolve } from 'node:path';
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 import { noLoungeMessage, parseArgv } from '../server/cli.js';
-import { listenOnFreePort, PREFERRED_PORTS } from '../server/port.js';
+import { listenOnFreePort, listenOnPort, PortError, PREFERRED_PORTS } from '../server/port.js';
 
 const appRoot = resolve(import.meta.dirname, '..');
 const bundle = resolve(appRoot, 'dist/cli.js');
@@ -125,6 +125,20 @@ describe('포트', () => {
     expect(PREFERRED_PORTS).toContain(first);
   });
 
+  it('--port 로 지정한 자리가 막혀 있으면 넘어가지 않고 실패한다', async () => {
+    const taken = await listenOnFreePort(open(), '127.0.0.1');
+    // 다른 데로 옮겨 뜨면 사람이 놀란다. 실패하고 왜인지 말한다.
+    await expect(listenOnPort(open(), '127.0.0.1', taken)).rejects.toBeInstanceOf(PortError);
+    await expect(listenOnPort(open(), '127.0.0.1', taken)).rejects.toThrow(/--port 를 빼면/);
+  });
+
+  it('--port 로 지정한 자리가 비어 있으면 그 자리로 연다', async () => {
+    const free = await listenOnFreePort(open(), '127.0.0.1');
+    const server = opened[opened.length - 1]!;
+    await new Promise<void>((done) => server.close(() => done()));
+    expect(await listenOnPort(open(), '127.0.0.1', free)).toBe(free);
+  });
+
   it('후보가 전부 막혀도 OS 에게 받아 연다', async () => {
     // 후보를 일부러 하나만 주고 그것을 미리 물린다
     const taken = await listenOnFreePort(open(), '127.0.0.1');
@@ -163,6 +177,18 @@ describe.runIf(existsSync(bundle))('번들 (dist/cli.js)', () => {
     expect(out).toContain('--init');
     // 조용히 만들지 않았는지 확인한다
     expect(existsSync(resolve(bare, '.lounge'))).toBe(false);
+  });
+
+  it('--port 가 막혀 있으면 종료 코드 4 로 끝난다', async () => {
+    const alive = spawnAlive(project);
+    const banner = await alive.banner;
+    const busy = banner.match(/127\.0\.0\.1:(\d+)/)![1]!;
+
+    const { code, out } = await launch(project, ['--port', busy]);
+    expect(code).toBe(4);
+    expect(out).toContain(`포트 ${busy}`);
+    expect(out).toContain('--port 를 빼면');
+    alive.child.kill();
   });
 
   it('프로젝트를 둘 동시에 띄워도 포트가 겹치지 않는다', async () => {

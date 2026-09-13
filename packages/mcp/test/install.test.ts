@@ -115,6 +115,22 @@ describe('템플릿', () => {
   });
 });
 
+describe('요건', () => {
+  /**
+   * `engines` 가 없으면 Node 18 로도 install 이 통과하고 build 에서야 깨진다.
+   * 하한의 근거는 `import.meta.dirname` 이고 Node 20.11 에서 들어왔다.
+   */
+  it('루트가 Node 하한을 선언한다', () => {
+    const root = readJson('package.json') as { engines?: { node?: string } };
+    expect(root.engines?.node).toBe('>=20.11');
+  });
+
+  it('문서가 같은 하한을 말한다', () => {
+    const install = readFileSync(joinNative(repoRoot, 'docs/INSTALL.md'), 'utf8');
+    expect(install).toContain('20.11');
+  });
+});
+
 describe('매니페스트', () => {
   it('플러그인 매니페스트가 MCP 서버를 인라인으로 선언한다', () => {
     const plugin = readJson('.claude-plugin/plugin.json') as {

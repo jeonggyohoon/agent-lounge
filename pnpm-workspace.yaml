@@ -2,9 +2,17 @@ packages:
   - 'packages/*'
   - 'apps/*'
 
-allowBuilds:
-  esbuild: set this to true or false
-
 # vitest 가 쓰는 esbuild 는 설치 시 네이티브 바이너리를 받아야 한다
 onlyBuiltDependencies:
   - esbuild
+
+# Node 하한은 루트 package.json 의 engines 에 있다 (>=20.11).
+# 근거: vite.config.ts / vitest.config.ts / apps/viewer/server/serve.ts 가
+# import.meta.dirname 을 쓴다. Node 20.11 에서 들어왔고, 그 아래에서는
+# install 은 통과하고 build 에서야 깨진다.
+#
+# engines 를 선언만 하면 pnpm 은 경고를 내고 그냥 넘어간다. 경고는 스크롤에
+# 묻히고 CI 로그에서는 아무도 안 본다. 실제로 막으려면 이것이 필요하다 —
+# 하한에 못 미치면 install 자체가 실패한다. 빌드 중간에 import.meta.dirname
+# 이 undefined 라 깨지는 것보다 설치에서 끊기는 편이 원인이 분명하다.
+engineStrict: true

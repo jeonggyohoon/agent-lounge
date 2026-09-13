@@ -265,8 +265,8 @@
       "ts": 1789288844907
     },
     "D:\\project\\lounge\\apps\\viewer\\server\\port.ts": {
-      "count": 1,
-      "ts": 1789290919890
+      "count": 2,
+      "ts": 1789292951367
     },
     "D:\\project\\lounge\\apps\\viewer\\server\\open.ts": {
       "count": 1,
@@ -279,6 +279,10 @@
     "D:\\project\\lounge\\apps\\viewer\\test\\cli.test.ts": {
       "count": 3,
       "ts": 1789291318045
+    },
+    "D:\\project\\lounge\\docs\\INSTALL.md": {
+      "count": 2,
+      "ts": 1789292452449
     }
   }
 }

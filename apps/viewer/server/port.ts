@@ -36,6 +36,21 @@ function tryListen(server: Server, port: number, host: string): Promise<number |
 }
 
 /**
+ * **딱 이 포트로만 연다.** 막혀 있으면 다른 데로 넘어가지 않고 실패한다.
+ *
+ * 사람이 `--port 6100` 이라고 했는데 6100 이 아닌 곳에 뜨면 놀란다.
+ * 자동으로 찾기를 원하면 지정하지 않는 것이 그 뜻이다.
+ */
+export async function listenOnPort(server: Server, host: string, port: number): Promise<number> {
+  const opened = await tryListen(server, port, host);
+  if (opened !== null) return opened;
+  throw new PortError(
+    `포트 ${port} 이(가) 이미 사용 중입니다.\n` +
+      '--port 를 빼면 빈 포트를 자동으로 찾습니다.',
+  );
+}
+
+/**
  * `preferred` 를 순서대로 훑고, 전부 막혀 있으면 `0` 으로 OS 에게 받는다.
  * 0 까지 실패하는 경우는 포트가 아니라 다른 문제이므로 던진다.
  */

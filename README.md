@@ -17,6 +17,7 @@ lounge/
     DATA-CONTRACT.md    파일 스키마 — 앱과 MCP의 공용 진실
     DESIGN-SYSTEM.md    토큰, 컴포넌트, 재사용 규칙
     ROADMAP.md          단계와 완료 조건
+    INSTALL.md          설치와 사용 — 쓰는 사람은 여기부터
   packages/core/        타입·상태·토큰·검증·파일 입출력. 앱과 MCP가 함께 씀
     src/types.ts        스키마와 경로 규칙 — 문서와 어긋나면 이쪽이 맞다
     src/tokens.ts       색, 간격, 타이포, 상태별 라벨과 tone
@@ -36,8 +37,10 @@ lounge/
 
 ## 읽는 순서
 
-처음이면 `docs/PRD.md` → `docs/ARCHITECTURE.md` → `docs/DATA-CONTRACT.md`.
-구현을 시작할 거면 `docs/ROADMAP.md`의 P0부터.
+**그냥 쓰려는 거면 `docs/INSTALL.md` 하나면 된다.**
+
+안을 알고 싶으면 `docs/PRD.md` → `docs/ARCHITECTURE.md` → `docs/DATA-CONTRACT.md`.
+구현을 이어갈 거면 `docs/ROADMAP.md`.
 
 ## 시작
 
@@ -87,7 +90,7 @@ lounge-mcp --actor claude-code@auth [--client <이름>] [--cwd <경로>]
 
 ## 뷰어
 
-프로젝트 폴더에서 띄우는 법은 「다른 프로젝트에 라운지 붙이기」의 5단계에 있다.
+프로젝트 폴더에서 띄우는 법은 [docs/INSTALL.md](docs/INSTALL.md) 의 4절에 있다.
 아래는 **뷰어 자체를 고칠 때** 쓰는 개발 모드다.
 
 ```
@@ -119,110 +122,25 @@ apps/viewer/dist/
 
 ## 다른 프로젝트에 라운지 붙이기
 
-이 저장소는 **도구를 만드는 곳**이고, 라운지는 **작업하는 프로젝트**에 놓인다.
-아래는 `~/work/myapp` 에 붙이는 절차다.
+**[docs/INSTALL.md](docs/INSTALL.md) 를 본다.** lounge 를 어디에 둘지부터
+설치, 붙이기, 쓰기, git, 업데이트, 문제 해결까지 순서대로 있다.
 
-### 1. 이 저장소를 빌드한다
-
-```
-git clone <이 저장소> ~/tools/lounge
-cd ~/tools/lounge && pnpm install && pnpm build
-```
-
-플러그인이 한 덩어리로 떨어지는 형태가 아니다. MCP 서버는 빌드된
-`packages/mcp/dist/index.js` 를 직접 실행한다.
-
-### 2. 라운지를 놓는다
+요약하면 이렇다.
 
 ```
-node ~/tools/lounge/packages/mcp/dist/index.js --init --cwd ~/work/myapp
-```
+git clone <저장소> ~/tools/lounge && cd ~/tools/lounge
+pnpm install && pnpm build
 
-`.lounge/` 와 `config.json`, `LOUNGE.md`, `.lounge/.gitignore` 가 생긴다.
-**프로젝트가 소유한 파일은 건드리지 않는다** — `.gitignore` 나 `CLAUDE.md` 에
-넣을 내용은 출력만 하고 직접 고치지 않는다.
+node ~/tools/lounge/packages/mcp/dist/index.js --init --cwd <프로젝트>
+cd <프로젝트>
+claude mcp add lounge -- node ~/tools/lounge/packages/mcp/dist/index.js   --actor claude-code --cwd <프로젝트>
+cp ~/tools/lounge/templates/CLAUDE.md <프로젝트>/CLAUDE.md
 
-이미 있으면 덮어쓰지 않는다. 서버는 탐색 중에 라운지를 **절대 만들지 않는다**.
-만드는 길은 이 명령 하나뿐이다.
-
-### 3. MCP 를 등록한다
-
-**actor 를 클라이언트마다 다르게 준다.** 같은 actor 를 쓰면 읽음 기록이
-섞여서 미확인 계산이 전부 어긋난다.
-
-| 클라이언트 | 넣는 곳 | 조각 |
-|---|---|---|
-| Claude Code | `~/work/myapp/.mcp.json` | `templates/.mcp.json` |
-| Codex | `~/.codex/config.toml` | `templates/codex-config.toml` |
-| Claude Desktop | `claude_desktop_config.json` | `templates/claude-desktop.json` |
-
-Claude Code 는 `.mcp.json` 대신 한 줄로도 된다.
-
-```
-claude mcp add lounge -- node ~/tools/lounge/packages/mcp/dist/index.js   --actor claude-code --cwd ~/work/myapp
-```
-
-**Claude Desktop 에는 `--cwd` 가 반드시 필요하다.** 작업 디렉터리가 없어서
-없으면 라운지를 찾지 못하고 시작에 실패한다. Claude Code 와 Codex 도
-프로젝트 밖에서 띄울 수 있으니 넣어두는 편이 안전하다.
-
-### 4. 진입 규칙을 둔다
-
-`templates/CLAUDE.md` 와 `templates/AGENTS.md` 를 `~/work/myapp` 에 복사한다.
-이미 있으면 「라운지」 절만 덧붙인다.
-
-Claude Code 는 세션 훅으로도 알리지만 **Codex 에는 세션 시작 훅이 없어서
-`AGENTS.md` 가 유일한 알림**이다. 빼먹으면 Codex 는 라운지를 쓰지 않는다.
-
-### 5. 뷰어를 띄운다
-
-**프로젝트 폴더에서 그대로 실행한다.** 현재 위치에서 위로 올라가며 라운지를
-찾고, 빈 포트를 골라 백엔드를 띄우고 브라우저를 연다.
-
-```
-cd ~/work/myapp
 node ~/tools/lounge/apps/viewer/dist/cli.js
 ```
 
-```
-라운지   ~/work/myapp/.lounge
-프로젝트 myapp
-열림     http://127.0.0.1:5174
-```
-
-하위 폴더에서 실행해도 같은 라운지에 붙는다. **프로젝트를 여러 개 동시에
-띄울 수 있다** — 포트가 겹치면 다음 빈 포트로 넘어간다.
-
-| 플래그 | |
-|---|---|
-| `--no-open` | 브라우저를 열지 않는다 |
-| `--port <n>` | 포트를 고정한다 |
-| `--cwd <경로>` | 다른 폴더의 라운지를 연다 |
-
-**라운지가 없으면 만들지 않고 종료한다.** MCP 서버와 같은 규칙이고 같은 종료
-코드(`3`)를 쓴다. `--init` 명령을 그대로 출력하니 그것만 복사해 실행하면 된다.
-
-전역 링크를 걸면 `lounge-viewer` 로 부를 수 있다.
-
-```
-cd ~/tools/lounge/apps/viewer && pnpm link --global
-cd ~/work/myapp && lounge-viewer
-```
-
-`npx lounge-viewer` 는 이 패키지가 `lounge-viewer` 라는 이름으로 npm 에
-배포된 뒤에나 동작한다. 지금은 `@lounge/viewer` 이고 `private` 이다.
-
-### 6. 확인한다
-
-각 클라이언트에서 `lounge_join` 을 부른다. 같은 라운지 경로가 나오면 붙은
-것이다. 한쪽에서 `lounge_post` 하고 다른 쪽에서 `lounge_join` 했을 때
-미확인으로 뜨면 끝이다. 뷰어를 띄워 두면 항목이 올라오는 것이 1초 안에 보인다.
-
-### git
-
-`.lounge/entries/` 와 `acks/` 는 **프로젝트 지식이므로 커밋한다.**
-`sessions/` `watermarks/` `resume/` 는 머신 로컬 상태이고,
-`--init` 이 놓은 `.lounge/.gitignore` 가 이미 가른다.
+**경로가 프로젝트마다 `.mcp.json` 에 박힌다.** 저장소 자리는 처음에 정하는
+편이 낫다 — 옮기면 붙여둔 프로젝트를 전부 고쳐야 한다.
 
 ## Claude Code 플러그인으로 쓰기
 

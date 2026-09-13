@@ -23,13 +23,16 @@ import {
 import { nodeIO } from '@lounge/core/fs';
 import { createViewerServer } from './index.js';
 import { openBrowser } from './open.js';
-import { listenOnFreePort } from './port.js';
+import { listenOnFreePort, listenOnPort, PortError } from './port.js';
 import { closeAllChanges } from './watch.js';
 
 const HOST = '127.0.0.1';
 
 /** 라운지를 못 찾았을 때. MCP 서버의 같은 상황과 코드를 맞춘다. */
 const EXIT_NO_LOUNGE = 3;
+
+/** `--port` 로 지정한 자리가 막혀 있을 때. */
+const EXIT_PORT_BUSY = 4;
 
 export interface CliOptions {
   cwd: string;
@@ -98,7 +101,20 @@ export async function run(argv: string[] = process.argv.slice(2)): Promise<void>
     ...(staticDir ? { staticDir } : {}),
   });
 
-  const port = await listenOnFreePort(server, HOST, options.port ? [options.port] : undefined);
+  let port: number;
+  try {
+    // 지정했으면 그 자리로만 연다. 안 했으면 빈 자리를 찾는다.
+    port = options.port
+      ? await listenOnPort(server, HOST, options.port)
+      : await listenOnFreePort(server, HOST);
+  } catch (error) {
+    if (error instanceof PortError) {
+      process.stderr.write(`${error.message}
+`);
+      process.exit(EXIT_PORT_BUSY);
+    }
+    throw error;
+  }
   const url = `http://${HOST}:${port}`;
 
   process.stdout.write(
