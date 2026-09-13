@@ -1,0 +1,14 @@
+{
+  "mcpServers": {
+    "lounge": {
+      "command": "node",
+      "args": [
+        "/절대경로/lounge/packages/mcp/dist/index.js",
+        "--actor",
+        "claude-code",
+        "--cwd",
+        "/절대경로/내-프로젝트"
+      ]
+    }
+  }
+}

@@ -1,0 +1,28 @@
+{
+  "name": "lounge",
+  "version": "0.1.0",
+  "displayName": "Lounge — 여러 AI 클라이언트의 공유 기록 공간",
+  "description": "한 프로젝트 폴더를 Claude Code, Codex, Claude Desktop 이 동시에 작업할 때 서로 무엇을 알고 무엇을 했는지 공유하는 조정 계층. 목적은 소통이 아니라 컨텍스트 절약이다.",
+  "license": "ISC",
+  "keywords": [
+    "mcp",
+    "multi-agent",
+    "coordination",
+    "context",
+    "handoff",
+    "session"
+  ],
+  "mcpServers": {
+    "lounge": {
+      "command": "node",
+      "args": [
+        "${CLAUDE_PLUGIN_ROOT}/packages/mcp/dist/index.js",
+        "--actor",
+        "claude-code",
+        "--client",
+        "claude-code"
+      ],
+      "env": {}
+    }
+  }
+}

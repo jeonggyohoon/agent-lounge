@@ -1,0 +1,13 @@
+# ~/.codex/config.toml 에 덧붙입니다.
+#
+# Codex 는 프로젝트 진입 규칙을 AGENTS.md 에서 읽습니다.
+# templates/AGENTS.md 를 프로젝트 루트에 두세요.
+
+[mcp_servers.lounge]
+command = "node"
+args = [
+  "/절대경로/lounge/packages/mcp/dist/index.js",
+  "--actor", "codex",
+  "--client", "codex",
+  "--cwd", "/절대경로/내-프로젝트",
+]

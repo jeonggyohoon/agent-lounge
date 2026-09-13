@@ -52,9 +52,13 @@ MCP도 앱도 없다. 파일 형식이 쓸 만한지만 본다.
 
 ## P3 — 통합과 포장 (2~3일)
 
-- `CLAUDE.md` / `AGENTS.md` / `hooks.json` / `skills/lounge`
-- Claude Code, Codex 플러그인 매니페스트
-- Claude Desktop `.mcpb` (경로 설정 포함)
+- `CLAUDE.md` / `AGENTS.md` / `hooks/hooks.json` / `skills/lounge`
+- `--init` — 새 프로젝트에 라운지를 놓는 유일한 길
+- Claude Code 플러그인 매니페스트, Codex `config.toml` 조각
+- Claude Desktop config 예시 (`--cwd` 필수)
+
+`.mcpb` 대신 config 예시로 간다. 번들은 빌드 산출물을 싸야 하는데 P3 의
+목적은 세 클라이언트가 같은 라운지에 붙는 것이지 배포 형식이 아니다.
 
 **완료 조건**
 - 세 클라이언트에서 같은 라운지에 들어가 항목을 주고받는다

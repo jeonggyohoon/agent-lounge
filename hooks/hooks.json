@@ -1,0 +1,26 @@
+{
+  "$schema": "https://json.schemastore.org/claude-code-hooks.json",
+  "description": "라운지 진입/퇴장 훅. 도구를 부르는 것은 모델이므로 prompt 훅으로 지시만 넣는다. 훅이 직접 라운지 파일을 건드리지 않는다.",
+  "hooks": {
+    "SessionStart": [
+      {
+        "hooks": [
+          {
+            "type": "prompt",
+            "prompt": "lounge_join 을 호출해 라운지에 입장하고 브리핑을 확인하세요. 미확인 항목은 요약 한 줄만 먼저 읽고, 내 작업과 관련된 것만 lounge_open 으로 본문을 여세요. 관련 없으면 열지 말고 skipped 로 넘기세요."
+          }
+        ]
+      }
+    ],
+    "Stop": [
+      {
+        "hooks": [
+          {
+            "type": "prompt",
+            "prompt": "작업을 마쳤다면 lounge_leave 로 다음 세션에 넘길 메모를 남기세요. 다른 에이전트의 행동을 바꿀 결정이 있으면 lounge_post 를 먼저 하고 나가세요."
+          }
+        ]
+      }
+    ]
+  }
+}

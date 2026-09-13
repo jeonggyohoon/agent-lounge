@@ -1,0 +1,18 @@
+{
+  "//": "claude_desktop_config.json 에 덧붙입니다. macOS 는 ~/Library/Application Support/Claude/, Windows 는 %APPDATA%/Claude/ 아래입니다.",
+  "//cwd": "Claude Desktop 은 작업 디렉터리가 없습니다. --cwd 가 없으면 라운지를 찾지 못하고 시작에 실패합니다. 반드시 넣으세요.",
+  "mcpServers": {
+    "lounge": {
+      "command": "node",
+      "args": [
+        "/절대경로/lounge/packages/mcp/dist/index.js",
+        "--actor",
+        "claude-desktop",
+        "--client",
+        "claude-desktop",
+        "--cwd",
+        "/절대경로/내-프로젝트"
+      ]
+    }
+  }
+}

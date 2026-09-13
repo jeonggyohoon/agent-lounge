@@ -237,8 +237,8 @@
       "ts": 1789287727454
     },
     "D:\\project\\lounge\\packages\\mcp\\src\\index.ts": {
-      "count": 1,
-      "ts": 1789287740890
+      "count": 2,
+      "ts": 1789288744848
     },
     "D:\\project\\lounge\\packages\\mcp\\test\\checklist.test.ts": {
       "count": 5,
@@ -247,6 +247,22 @@
     "D:\\project\\lounge\\packages\\mcp\\test\\stdio.test.ts": {
       "count": 2,
       "ts": 1789287962419
+    },
+    "D:\\project\\lounge\\packages\\mcp\\src\\template.ts": {
+      "count": 1,
+      "ts": 1789288700267
+    },
+    "D:\\project\\lounge\\packages\\mcp\\src\\init.ts": {
+      "count": 1,
+      "ts": 1789288722413
+    },
+    "D:\\project\\lounge\\templates\\AGENTS.md": {
+      "count": 1,
+      "ts": 1789288809134
+    },
+    "D:\\project\\lounge\\packages\\mcp\\test\\install.test.ts": {
+      "count": 1,
+      "ts": 1789288844907
     }
   }
 }
