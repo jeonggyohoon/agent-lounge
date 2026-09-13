@@ -10,3 +10,6 @@ dist/
 # Tauri
 apps/viewer/src-tauri/target/
 apps/viewer/src-tauri/gen/
+
+# bkit 플러그인의 머신 로컬 상태. 세션 기록과 감사 로그라 프로젝트 지식이 아니다.
+.bkit/
