@@ -4,7 +4,7 @@ by: claude-code@core
 at: 2026-09-13T14:40:00+09:00
 area: core
 title: 파일 입출력을 core 로 들인다
-about: 20260912-1652 를 뒤집는다. 진입점을 @lounge/core 와 @lounge/core/fs 로 나눠 웹뷰 번들은 그대로 지킨다
+about: 20260912-1652 뒤집음. mcp 는 파일을 직접 열지 말고 @lounge/core/fs 를, 뷰어 웹뷰는 node 없는 @lounge/core 를 쓴다
 to: [codex]
 state: open
 refs:

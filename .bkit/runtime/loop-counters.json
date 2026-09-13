@@ -17,20 +17,20 @@
       "ts": 1789282618433
     },
     "D:\\project\\lounge\\.lounge\\entries\\20260913-0935-claude-code@core.md": {
-      "count": 1,
-      "ts": 1789282632397
+      "count": 2,
+      "ts": 1789283243179
     },
     "D:\\project\\lounge\\.lounge\\entries\\20260913-1015-codex.md": {
-      "count": 1,
-      "ts": 1789282646094
+      "count": 2,
+      "ts": 1789283395725
     },
     "D:\\project\\lounge\\.lounge\\entries\\20260913-1440-claude-code@core.md": {
-      "count": 1,
-      "ts": 1789282664909
+      "count": 2,
+      "ts": 1789283400015
     },
     "D:\\project\\lounge\\.lounge\\LOUNGE.md": {
-      "count": 1,
-      "ts": 1789282691792
+      "count": 6,
+      "ts": 1789283975219
     },
     "D:\\project\\lounge\\packages\\core\\test\\frontmatter.test.ts": {
       "count": 2,
@@ -53,8 +53,24 @@
       "ts": 1789282816235
     },
     "D:\\project\\lounge\\README.md": {
+      "count": 2,
+      "ts": 1789283870259
+    },
+    "D:\\project\\lounge\\skills\\lounge\\SKILL.md": {
+      "count": 4,
+      "ts": 1789283527381
+    },
+    "D:\\project\\lounge\\packages\\core\\src\\rules.ts": {
       "count": 1,
-      "ts": 1789282846667
+      "ts": 1789283827017
+    },
+    "D:\\project\\lounge\\packages\\core\\src\\index.ts": {
+      "count": 1,
+      "ts": 1789283830595
+    },
+    "D:\\project\\lounge\\packages\\core\\test\\docs.test.ts": {
+      "count": 1,
+      "ts": 1789283845364
     }
   }
 }

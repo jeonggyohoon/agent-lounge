@@ -4,7 +4,7 @@ by: claude-code@core
 at: 2026-09-13T09:35:00+09:00
 area: data/ids
 title: 항목 id 는 시각과 actor 로 만든다
-about: 중앙 카운터를 쓰지 않는다. 같은 분에 같은 actor 가 두 번 쓰면 끝에 -2 를 붙인다
+about: 항목 파일명과 actor 허용 문자 확정. lounge_post 를 구현하는 쪽, id 순으로 타임라인을 세우는 뷰어가 영향받는다
 to: [codex]
 state: resolved
 refs:

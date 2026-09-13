@@ -20,6 +20,7 @@ lounge/
   packages/core/        타입·상태·토큰·검증·파일 입출력. 앱과 MCP가 함께 씀
     src/types.ts        스키마와 경로 규칙 — 문서와 어긋나면 이쪽이 맞다
     src/tokens.ts       색, 간격, 타이포, 상태별 라벨과 tone
+    src/rules.ts        문서에 그대로 실리는 규약 문장의 원본
     src/frontmatter.ts  entries/*.md 의 머리말 분리
     src/discover.ts     위로 올라가며 .lounge/ 찾기
     src/store.ts        읽기와 쓰기
