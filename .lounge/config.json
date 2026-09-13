@@ -1,0 +1,14 @@
+{
+  "project": "lounge",
+  "briefing": {
+    "maxUnread": 5,
+    "aboutMaxLength": 120,
+    "titleMaxLength": 60
+  },
+  "sweep": {
+    "idleMinutes": 30
+  },
+  "archive": {
+    "afterResolvedDays": 7
+  }
+}

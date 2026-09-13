@@ -1,0 +1,10 @@
+packages:
+  - 'packages/*'
+  - 'apps/*'
+
+allowBuilds:
+  esbuild: set this to true or false
+
+# vitest 가 쓰는 esbuild 는 설치 시 네이티브 바이너리를 받아야 한다
+onlyBuiltDependencies:
+  - esbuild

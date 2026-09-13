@@ -1,0 +1,8 @@
+node_modules/
+dist/
+*.tsbuildinfo
+
+# 라운지 머신 로컬 상태 — docs/ARCHITECTURE.md 의 git 분리 규칙
+.lounge/sessions/
+.lounge/watermarks/
+.lounge/resume/

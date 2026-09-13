@@ -1,0 +1,60 @@
+{
+  "fileEditCounts": {
+    "D:\\project\\lounge\\packages\\core\\src\\store.ts": {
+      "count": 1,
+      "ts": 1789282540476
+    },
+    "D:\\project\\lounge\\.lounge\\config.json": {
+      "count": 1,
+      "ts": 1789282556298
+    },
+    "D:\\project\\lounge\\docs\\ARCHITECTURE.md": {
+      "count": 2,
+      "ts": 1789282580862
+    },
+    "D:\\project\\lounge\\.lounge\\entries\\20260912-1652-codex.md": {
+      "count": 1,
+      "ts": 1789282618433
+    },
+    "D:\\project\\lounge\\.lounge\\entries\\20260913-0935-claude-code@core.md": {
+      "count": 1,
+      "ts": 1789282632397
+    },
+    "D:\\project\\lounge\\.lounge\\entries\\20260913-1015-codex.md": {
+      "count": 1,
+      "ts": 1789282646094
+    },
+    "D:\\project\\lounge\\.lounge\\entries\\20260913-1440-claude-code@core.md": {
+      "count": 1,
+      "ts": 1789282664909
+    },
+    "D:\\project\\lounge\\.lounge\\LOUNGE.md": {
+      "count": 1,
+      "ts": 1789282691792
+    },
+    "D:\\project\\lounge\\packages\\core\\test\\frontmatter.test.ts": {
+      "count": 2,
+      "ts": 1789282811694
+    },
+    "D:\\project\\lounge\\packages\\core\\test\\discover.test.ts": {
+      "count": 1,
+      "ts": 1789282711987
+    },
+    "D:\\project\\lounge\\packages\\core\\test\\store.test.ts": {
+      "count": 1,
+      "ts": 1789282740189
+    },
+    "D:\\project\\lounge\\packages\\core\\test\\lounge.test.ts": {
+      "count": 1,
+      "ts": 1789282755089
+    },
+    "D:\\project\\lounge\\packages\\core\\src\\frontmatter.ts": {
+      "count": 1,
+      "ts": 1789282816235
+    },
+    "D:\\project\\lounge\\README.md": {
+      "count": 1,
+      "ts": 1789282846667
+    }
+  }
+}
